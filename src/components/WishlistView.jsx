@@ -1,15 +1,5 @@
 import { Heart, ShoppingBag, Trash2, ArrowRight } from 'lucide-react';
-import { Product } from '../types';
-import { formatPrice, Currency } from '../utils/format';
-
-interface WishlistViewProps {
-  wishlistProducts: Product[];
-  currency: Currency;
-  onRemoveFromWishlist: (product: Product) => void;
-  onAddToCart: (product: Product, size: string) => void;
-  onExploreCatalog: () => void;
-  onQuickView: (product: Product) => void;
-}
+import { formatPrice } from '../utils/format';
 
 export default function WishlistView({
   wishlistProducts,
@@ -18,7 +8,7 @@ export default function WishlistView({
   onAddToCart,
   onExploreCatalog,
   onQuickView,
-}: WishlistViewProps) {
+}) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <div className="flex items-center justify-between pb-6 border-b border-stone-200">

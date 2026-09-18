@@ -4,26 +4,10 @@ import {
   X, 
   ArrowUpDown, 
   RotateCcw,
-  Sparkles,
-  ShoppingBag
+  Sparkles
 } from 'lucide-react';
-import { Product, CategoryId, FilterState } from '../types';
-import { Currency } from '../utils/format';
 import { BRANDS } from '../data/products';
 import ProductCard from './ProductCard';
-
-interface ProductCatalogProps {
-  products: Product[];
-  currency: Currency;
-  selectedCategory: CategoryId;
-  setSelectedCategory: (cat: CategoryId) => void;
-  searchQuery: string;
-  setSearchQuery: (q: string) => void;
-  wishlistIds: Set<string>;
-  onToggleWishlist: (product: Product) => void;
-  onAddToCart: (product: Product, size: string) => void;
-  onQuickView: (product: Product) => void;
-}
 
 export default function ProductCatalog({
   products,
@@ -36,15 +20,15 @@ export default function ProductCatalog({
   onToggleWishlist,
   onAddToCart,
   onQuickView,
-}: ProductCatalogProps) {
+}) {
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-  const [minRating, setMinRating] = useState<number>(0);
-  const [minDiscount, setMinDiscount] = useState<number>(0);
-  const [sortBy, setSortBy] = useState<FilterState['sortBy']>('recommended');
-  const [maxPrice, setMaxPrice] = useState<number>(250);
+  const [selectedBrands, setSelectedBrands] = useState([]);
+  const [minRating, setMinRating] = useState(0);
+  const [minDiscount, setMinDiscount] = useState(0);
+  const [sortBy, setSortBy] = useState('recommended');
+  const [maxPrice, setMaxPrice] = useState(250);
 
-  const toggleBrand = (brand: string) => {
+  const toggleBrand = (brand) => {
     setSelectedBrands((prev) =>
       prev.includes(brand) ? prev.filter((b) => b !== brand) : [...prev, brand]
     );
@@ -60,12 +44,23 @@ export default function ProductCatalog({
     setSortBy('recommended');
   };
 
+  // Category helper
+  const matchCategory = (prodCat, selected) => {
+    if (selected === 'all') return true;
+    if (selected === prodCat) return true;
+    if ((selected === 'womenswear' || selected === 'women') && (prodCat === 'womenswear' || prodCat === 'women')) return true;
+    if ((selected === 'menswear' || selected === 'men') && (prodCat === 'menswear' || prodCat === 'men')) return true;
+    if ((selected === 'footwear' || selected === 'footware') && (prodCat === 'footwear' || prodCat === 'footware')) return true;
+    if ((selected === 'sports-footwear' || selected === 'sports-footware') && (prodCat === 'sports-footwear' || prodCat === 'sports-footware')) return true;
+    return false;
+  };
+
   // Filter & Sort Logic
   const filteredProducts = useMemo(() => {
     return products
       .filter((p) => {
-        // Category filter
-        if (selectedCategory !== 'all' && p.category !== selectedCategory) {
+        // Category filter with alias normalization
+        if (!matchCategory(p.category, selectedCategory)) {
           return false;
         }
 
@@ -131,13 +126,34 @@ export default function ProductCatalog({
     (searchQuery ? 1 : 0);
 
   const categoriesList = [
-    { id: 'all' as CategoryId, label: 'All Collections' },
-    { id: 'women' as CategoryId, label: "Women's Couture & Ethnic" },
-    { id: 'men' as CategoryId, label: "Men's Apparel & Streetwear" },
-    { id: 'accessories' as CategoryId, label: 'Accessories & Totes' },
-    { id: 'footwear' as CategoryId, label: 'Footwear & Heels' },
-    { id: 'beauty' as CategoryId, label: 'Beauty & Fragrances' },
+    { id: 'all', label: 'All Collections' },
+    { id: 'womenswear', label: "Womenswear (Blazers, Silks & Co-ords)" },
+    { id: 'menswear', label: "Menswear (Heavyweight Tees & Street)" },
+    { id: 'footwear', label: "Footwear (Derbies, Boots & Loafers)" },
+    { id: 'sports-footwear', label: "Sports Footwear (Pro Runners & Trainers)" },
+    { id: 'accessories', label: 'Accessories & Fine Leather' },
+    { id: 'beauty', label: 'Beauty & Self-Care' },
   ];
+
+  const getCategoryTitle = () => {
+    if (selectedCategory === 'all') return 'Curated Catalog';
+    const match = categoriesList.find((c) => c.id === selectedCategory);
+    if (match) return match.label;
+    if (selectedCategory === 'women') return "Womenswear (Blazers, Silks & Co-ords)";
+    if (selectedCategory === 'men') return "Menswear (Heavyweight Tees & Street)";
+    if (selectedCategory === 'footware') return "Footwear (Derbies, Boots & Loafers)";
+    if (selectedCategory === 'sports-footware') return "Sports Footwear (Pro Runners & Trainers)";
+    return selectedCategory;
+  };
+
+  const isSelectedCategory = (catId) => {
+    if (selectedCategory === catId) return true;
+    if (catId === 'womenswear' && selectedCategory === 'women') return true;
+    if (catId === 'menswear' && selectedCategory === 'men') return true;
+    if (catId === 'footwear' && selectedCategory === 'footware') return true;
+    if (catId === 'sports-footwear' && selectedCategory === 'sports-footware') return true;
+    return false;
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -146,9 +162,7 @@ export default function ProductCatalog({
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl sm:text-3xl font-serif font-bold text-stone-950">
-              {selectedCategory === 'all'
-                ? 'Curated Catalog'
-                : categoriesList.find((c) => c.id === selectedCategory)?.label}
+              {getCategoryTitle()}
             </h1>
             <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-stone-100 text-stone-600">
               {filteredProducts.length} Items
@@ -180,7 +194,7 @@ export default function ProductCatalog({
               <select
                 id="catalog-sort-select"
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as FilterState['sortBy'])}
+                onChange={(e) => setSortBy(e.target.value)}
                 className="appearance-none pl-3 pr-8 py-2 bg-white border border-stone-300 rounded-xl text-xs font-semibold text-stone-800 focus:outline-none focus:border-rose-500 cursor-pointer shadow-2xs"
               >
                 <option value="recommended">Recommended</option>
@@ -205,7 +219,7 @@ export default function ProductCatalog({
 
           {selectedCategory !== 'all' && (
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 text-xs font-semibold">
-              Category: {selectedCategory}
+              Category: {getCategoryTitle()}
               <button onClick={() => setSelectedCategory('all')} className="hover:text-rose-900 cursor-pointer">
                 <X className="w-3 h-3" />
               </button>
@@ -283,25 +297,28 @@ export default function ProductCatalog({
             <div className="text-xs font-bold uppercase tracking-wider text-stone-900 mb-2">
               Categories
             </div>
-            {categoriesList.map((c) => (
-              <label
-                key={c.id}
-                className="flex items-center justify-between text-xs text-stone-700 hover:text-stone-950 cursor-pointer group py-0.5"
-              >
-                <span className="flex items-center gap-2">
-                  <input
-                    type="radio"
-                    name="category-filter"
-                    checked={selectedCategory === c.id}
-                    onChange={() => setSelectedCategory(c.id)}
-                    className="accent-rose-600 cursor-pointer"
-                  />
-                  <span className={selectedCategory === c.id ? 'font-bold text-rose-700' : ''}>
-                    {c.label}
+            {categoriesList.map((c) => {
+              const active = isSelectedCategory(c.id);
+              return (
+                <label
+                  key={c.id}
+                  className="flex items-center justify-between text-xs text-stone-700 hover:text-stone-950 cursor-pointer group py-0.5"
+                >
+                  <span className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="category-filter"
+                      checked={active}
+                      onChange={() => setSelectedCategory(c.id)}
+                      className="accent-rose-600 cursor-pointer"
+                    />
+                    <span className={active ? 'font-bold text-rose-700' : ''}>
+                      {c.label}
+                    </span>
                   </span>
-                </span>
-              </label>
-            ))}
+                </label>
+              );
+            })}
           </div>
 
           {/* Brands Filter */}
@@ -458,19 +475,22 @@ export default function ProductCatalog({
               <div>
                 <div className="text-xs font-bold uppercase text-stone-900 mb-2">Category</div>
                 <div className="space-y-1">
-                  {categoriesList.map((c) => (
-                    <button
-                      key={c.id}
-                      onClick={() => setSelectedCategory(c.id)}
-                      className={`w-full text-left text-xs py-1.5 px-2 rounded-md ${
-                        selectedCategory === c.id
-                          ? 'bg-rose-50 text-rose-700 font-bold'
-                          : 'text-stone-700 hover:bg-stone-50'
-                      }`}
-                    >
-                      {c.label}
-                    </button>
-                  ))}
+                  {categoriesList.map((c) => {
+                    const active = isSelectedCategory(c.id);
+                    return (
+                      <button
+                        key={c.id}
+                        onClick={() => setSelectedCategory(c.id)}
+                        className={`w-full text-left text-xs py-1.5 px-2 rounded-md ${
+                          active
+                            ? 'bg-rose-50 text-rose-700 font-bold'
+                            : 'text-stone-700 hover:bg-stone-50'
+                        }`}
+                      >
+                        {c.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

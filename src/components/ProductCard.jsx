@@ -1,16 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Heart, Star, ShoppingBag, Eye, Check } from 'lucide-react';
-import { Product } from '../types';
-import { formatPrice, Currency } from '../utils/format';
-
-interface ProductCardProps {
-  product: Product;
-  currency: Currency;
-  isWishlisted: boolean;
-  onToggleWishlist: (product: Product) => void;
-  onAddToCart: (product: Product, size: string) => void;
-  onQuickView: (product: Product) => void;
-}
+import { formatPrice } from '../utils/format';
 
 export default function ProductCard({
   product,
@@ -19,12 +9,12 @@ export default function ProductCard({
   onToggleWishlist,
   onAddToCart,
   onQuickView,
-}: ProductCardProps) {
-  const [selectedSize, setSelectedSize] = useState<string>(product.sizes[0] || 'Standard');
+}) {
+  const [selectedSize, setSelectedSize] = useState(product.sizes[0] || 'Standard');
   const [showSizePicker, setShowSizePicker] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
 
-  const handleAdd = (e: React.MouseEvent) => {
+  const handleAdd = (e) => {
     e.stopPropagation();
     if (product.sizes.length > 1 && !showSizePicker) {
       setShowSizePicker(true);
@@ -38,7 +28,7 @@ export default function ProductCard({
     }, 1200);
   };
 
-  const handleSelectSizeAndAdd = (e: React.MouseEvent, size: string) => {
+  const handleSelectSizeAndAdd = (e, size) => {
     e.stopPropagation();
     setSelectedSize(size);
     onAddToCart(product, size);

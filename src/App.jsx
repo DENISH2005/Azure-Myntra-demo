@@ -3,15 +3,10 @@ import {
   Sparkles, 
   ArrowRight, 
   Flame, 
-  Tag, 
-  Star, 
   Check, 
-  Heart, 
-  ShoppingBag 
+  Heart 
 } from 'lucide-react';
-import { Product, CartItem, NavView, CategoryId, OrderDetails } from './types';
 import { PRODUCTS, BRANDS } from './data/products';
-import { Currency, formatPrice } from './utils/format';
 import Navbar from './components/Navbar';
 import HeroBanner from './components/HeroBanner';
 import CategoryPills from './components/CategoryPills';
@@ -27,15 +22,15 @@ import Footer from './components/Footer';
 
 export default function App() {
   // Navigation & View State
-  const [currentView, setCurrentView] = useState<NavView>('home');
-  const [selectedCategory, setSelectedCategory] = useState<CategoryId>('all');
+  const [currentView, setCurrentView] = useState('home');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [currency, setCurrency] = useState<Currency>(() => {
-    return (localStorage.getItem('myra_currency') as Currency) || 'INR';
+  const [currency, setCurrency] = useState(() => {
+    return localStorage.getItem('myra_currency') || 'INR';
   });
 
   // Cart & Wishlist State
-  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+  const [cartItems, setCartItems] = useState(() => {
     try {
       const saved = localStorage.getItem('myra_cart');
       return saved ? JSON.parse(saved) : [];
@@ -44,7 +39,7 @@ export default function App() {
     }
   });
 
-  const [wishlistIds, setWishlistIds] = useState<Set<string>>(() => {
+  const [wishlistIds, setWishlistIds] = useState(() => {
     try {
       const saved = localStorage.getItem('myra_wishlist');
       return saved ? new Set(JSON.parse(saved)) : new Set();
@@ -54,15 +49,12 @@ export default function App() {
   });
 
   // Modals
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
   const [cartOpen, setCartOpen] = useState(false);
-  const [confirmedOrder, setConfirmedOrder] = useState<OrderDetails | null>(null);
+  const [confirmedOrder, setConfirmedOrder] = useState(null);
 
   // Toast Notification
-  const [toastMessage, setToastMessage] = useState<{
-    text: string;
-    type?: 'bag' | 'wishlist';
-  } | null>(null);
+  const [toastMessage, setToastMessage] = useState(null);
 
   // Save to LocalStorage
   useEffect(() => {
@@ -78,7 +70,7 @@ export default function App() {
   }, [currency]);
 
   // Toast trigger helper
-  const showToast = (text: string, type: 'bag' | 'wishlist' = 'bag') => {
+  const showToast = (text, type = 'bag') => {
     setToastMessage({ text, type });
     setTimeout(() => {
       setToastMessage(null);
@@ -86,7 +78,7 @@ export default function App() {
   };
 
   // Cart Handlers
-  const handleAddToCart = (product: Product, selectedSize: string) => {
+  const handleAddToCart = (product, selectedSize) => {
     setCartItems((prev) => {
       const cartItemId = `${product.id}-${selectedSize}`;
       const existing = prev.find((item) => item.id === cartItemId);
@@ -110,7 +102,7 @@ export default function App() {
     showToast(`Added "${product.name.slice(0, 24)}..." (Size: ${selectedSize}) to Bag`, 'bag');
   };
 
-  const handleUpdateQuantity = (id: string, delta: number) => {
+  const handleUpdateQuantity = (id, delta) => {
     setCartItems((prev) =>
       prev
         .map((item) => {
@@ -120,11 +112,11 @@ export default function App() {
           }
           return item;
         })
-        .filter(Boolean) as CartItem[]
+        .filter(Boolean)
     );
   };
 
-  const handleRemoveCartItem = (id: string) => {
+  const handleRemoveCartItem = (id) => {
     setCartItems((prev) => prev.filter((item) => item.id !== id));
   };
 
@@ -133,21 +125,21 @@ export default function App() {
   };
 
   // Wishlist Handlers
-  const handleToggleWishlist = (product: Product) => {
+  const handleToggleWishlist = (product) => {
     setWishlistIds((prev) => {
       const next = new Set(prev);
       if (next.has(product.id)) {
         next.delete(product.id);
-        showToast(`Removed from Wishlist`, 'wishlist');
+        showToast('Removed from Wishlist', 'wishlist');
       } else {
         next.add(product.id);
-        showToast(`Saved to Wishlist`, 'wishlist');
+        showToast('Saved to Wishlist', 'wishlist');
       }
       return next;
     });
   };
 
-  const handleRemoveFromWishlist = (product: Product) => {
+  const handleRemoveFromWishlist = (product) => {
     setWishlistIds((prev) => {
       const next = new Set(prev);
       next.delete(product.id);
@@ -156,7 +148,7 @@ export default function App() {
   };
 
   // Switch to catalog with optional category selection
-  const handleShopCategory = (category: CategoryId = 'all') => {
+  const handleShopCategory = (category = 'all') => {
     setSelectedCategory(category);
     setCurrentView('catalog');
     window.scrollTo({ top: 0, behavior: 'smooth' });

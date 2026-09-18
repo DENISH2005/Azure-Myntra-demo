@@ -1,20 +1,12 @@
-import { CheckCircle2, Package, MapPin, Truck, Calendar, ShoppingBag } from 'lucide-react';
-import { OrderDetails } from '../types';
-import { formatPrice, Currency } from '../utils/format';
-
-interface OrderConfirmationModalProps {
-  order: OrderDetails | null;
-  currency: Currency;
-  onClose: () => void;
-  onContinueShopping: () => void;
-}
+import { CheckCircle2, MapPin, Truck, ShoppingBag } from 'lucide-react';
+import { formatPrice } from '../utils/format';
 
 export default function OrderConfirmationModal({
   order,
   currency,
   onClose,
   onContinueShopping,
-}: OrderConfirmationModalProps) {
+}) {
   if (!order) return null;
 
   return (

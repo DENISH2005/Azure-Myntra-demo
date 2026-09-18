@@ -9,25 +9,12 @@ import {
   ShieldCheck, 
   ArrowRight, 
   Truck, 
-  Check, 
   Sparkles,
   Gift
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { CartItem, Coupon, OrderDetails } from '../types';
-import { formatPrice, Currency } from '../utils/format';
+import { formatPrice } from '../utils/format';
 import { AVAILABLE_COUPONS } from '../data/products';
-
-interface CartDrawerProps {
-  isOpen: boolean;
-  onClose: () => void;
-  cartItems: CartItem[];
-  currency: Currency;
-  onUpdateQuantity: (id: string, delta: number) => void;
-  onRemoveItem: (id: string) => void;
-  onClearCart: () => void;
-  onOrderSuccess: (order: OrderDetails) => void;
-}
 
 export default function CartDrawer({
   isOpen,
@@ -38,12 +25,12 @@ export default function CartDrawer({
   onRemoveItem,
   onClearCart,
   onOrderSuccess,
-}: CartDrawerProps) {
+}) {
   const [couponCodeInput, setCouponCodeInput] = useState('');
-  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState('');
   const [isCheckingOut, setIsCheckingOut] = useState(false);
-  const [checkoutStep, setCheckoutStep] = useState<'cart' | 'shipping'>('cart');
+  const [checkoutStep, setCheckoutStep] = useState('cart');
 
   // Customer shipping details for the simulated order
   const [shippingForm, setShippingForm] = useState({
@@ -84,7 +71,7 @@ export default function CartDrawer({
   const shippingFee = subtotal === 0 || freeShippingUnlocked ? 0 : 5;
   const finalTotal = Math.max(0, subtotal - couponDiscount + shippingFee);
 
-  const handleApplyCoupon = (codeToApply?: string) => {
+  const handleApplyCoupon = (codeToApply) => {
     const code = (codeToApply || couponCodeInput).trim().toUpperCase();
     setCouponError('');
     const found = AVAILABLE_COUPONS.find((c) => c.code.toUpperCase() === code);
@@ -124,7 +111,7 @@ export default function CartDrawer({
     }
 
     setTimeout(() => {
-      const newOrder: OrderDetails = {
+      const newOrder = {
         orderId: `MYRA-${Math.floor(100000 + Math.random() * 900000)}`,
         date: new Date().toLocaleDateString('en-US', {
           month: 'short',
@@ -176,7 +163,7 @@ export default function CartDrawer({
             {checkoutStep === 'shipping' && (
               <button
                 onClick={() => setCheckoutStep('cart')}
-                className="text-xs font-semibold text-stone-600 hover:text-stone-900 px-2 py-1 rounded-md"
+                className="text-xs font-semibold text-stone-600 hover:text-stone-900 px-2 py-1 rounded-md cursor-pointer"
               >
                 Back to Cart
               </button>
@@ -184,7 +171,7 @@ export default function CartDrawer({
             <button
               id="close-cart-drawer-btn"
               onClick={onClose}
-              className="p-1.5 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-200 transition-colors"
+              className="p-1.5 rounded-full text-stone-400 hover:text-stone-700 hover:bg-stone-200 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -352,7 +339,7 @@ export default function CartDrawer({
                     </div>
                     <button
                       onClick={handleRemoveCoupon}
-                      className="text-xs text-rose-600 font-bold hover:underline"
+                      className="text-xs text-rose-600 font-bold hover:underline cursor-pointer"
                     >
                       Remove
                     </button>

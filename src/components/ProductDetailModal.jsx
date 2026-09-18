@@ -1,27 +1,14 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { 
   X, 
   Heart, 
   ShoppingBag, 
   Star, 
-  Truck, 
-  RotateCcw, 
-  ShieldCheck, 
   MapPin, 
   CheckCircle2, 
   Sparkles 
 } from 'lucide-react';
-import { Product } from '../types';
-import { formatPrice, Currency } from '../utils/format';
-
-interface ProductDetailModalProps {
-  product: Product | null;
-  currency: Currency;
-  isWishlisted: boolean;
-  onClose: () => void;
-  onToggleWishlist: (product: Product) => void;
-  onAddToCart: (product: Product, size: string) => void;
-}
+import { formatPrice } from '../utils/format';
 
 export default function ProductDetailModal({
   product,
@@ -30,17 +17,17 @@ export default function ProductDetailModal({
   onClose,
   onToggleWishlist,
   onAddToCart,
-}: ProductDetailModalProps) {
+}) {
   if (!product) return null;
 
-  const [activeImage, setActiveImage] = useState<string>(product.image);
-  const [selectedSize, setSelectedSize] = useState<string>(product.sizes[0] || 'Standard');
-  const [selectedColor, setSelectedColor] = useState<string>(product.colors[0]?.name || '');
-  const [pincode, setPincode] = useState<string>('');
-  const [pincodeStatus, setPincodeStatus] = useState<'idle' | 'checking' | 'verified'>('idle');
+  const [activeImage, setActiveImage] = useState(product.image);
+  const [selectedSize, setSelectedSize] = useState(product.sizes[0] || 'Standard');
+  const [selectedColor, setSelectedColor] = useState(product.colors[0]?.name || '');
+  const [pincode, setPincode] = useState('');
+  const [pincodeStatus, setPincodeStatus] = useState('idle');
   const [addedNotice, setAddedNotice] = useState(false);
 
-  const checkPincode = (e: React.FormEvent) => {
+  const checkPincode = (e) => {
     e.preventDefault();
     if (!pincode || pincode.length < 3) return;
     setPincodeStatus('checking');
