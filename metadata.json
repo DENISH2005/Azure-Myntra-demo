@@ -1,0 +1,6 @@
+{
+  "name": "MYRA Fashion & Lifestyle",
+  "description": "An aesthetic Myntra-inspired fashion shopping destination featuring trending product catalogs, instant cart management, wishlist, deals, About Us, and policy terms.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
